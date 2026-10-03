@@ -1,0 +1,35 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { url, dateLabel, readingMinutes } from '../lib/site';
+import Icon from './Icon.astro';
+import ArticleVisual from './ArticleVisual.astro';
+interface Props { posts: CollectionEntry<'posts'>[]; filters?: boolean; }
+const { posts, filters = true } = Astro.props;
+const categories = [...new Set(posts.map(p => p.data.category))];
+---
+<div class="article-browser">
+{filters && <div class="article-toolbar"><div class="filter-tabs" role="group" aria-label="按主题筛选"><button class="selected" data-filter="all" aria-pressed="true">全部文章 <span>{posts.length}</span></button>{categories.map(category => <button data-filter={category} aria-pressed="false">{category}</button>)}</div><label class="search-field"><Icon name="search" size={17}/><input type="search" placeholder="搜索文章…" aria-label="搜索标题、摘要和标签"/><kbd>/</kbd></label></div>}
+<div class="articles-grid">{posts.map(post => <article class="article-card reveal" data-category={post.data.category} data-search={`${post.data.title} ${post.data.description} ${post.data.tags.join(' ')}`.toLowerCase()}>
+  <a href={url(`posts/${post.id}/`)} class="card-link"><ArticleVisual type={post.data.visual}/><div class="card-body"><div class="card-meta"><span>{post.data.category}</span>{post.data.demo && <span class="demo-badge">示例文章</span>}<span class="read-time">{readingMinutes(post.body)} 分钟</span></div><h3>{post.data.title}</h3><p>{post.data.description}</p><div class="card-bottom"><time datetime={post.data.date.toISOString()}>{dateLabel(post.data.date)}</time><span class="card-arrow"><Icon name="arrow" size={19}/></span></div></div></a>
+</article>)}</div>
+<p class="search-empty" hidden>没有找到匹配的文章。试试其他关键词，或切换到「全部文章」。</p>
+<p class="sr-only" data-result-count aria-live="polite"></p>
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('.article-browser').forEach(root => {
+    const input = root.querySelector<HTMLInputElement>('input[type="search"]');
+    const cards = [...root.querySelectorAll<HTMLElement>('.article-card')];
+    let category = 'all';
+    function filter() {
+      let count = 0; const query = input?.value.trim().toLowerCase() || '';
+      cards.forEach(card => { const match = (category === 'all' || card.dataset.category === category) && (card.dataset.search || '').includes(query); card.hidden = !match; if (match) count++; });
+      const empty = root.querySelector<HTMLElement>('.search-empty'); if (empty) empty.hidden = count > 0;
+      root.querySelector('[data-result-count]')!.textContent = `找到 ${count} 篇文章`;
+    }
+    input?.addEventListener('input', filter);
+    root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button => button.addEventListener('click', () => {
+      category = button.dataset.filter || 'all'; root.querySelectorAll('[data-filter]').forEach(b => { b.classList.toggle('selected', b === button); b.setAttribute('aria-pressed', String(b === button)); }); filter();
+    }));
+    if (input) document.addEventListener('keydown', e => { if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement) && !(e.target as HTMLElement)?.isContentEditable) { e.preventDefault(); input.focus(); } });
+  });
+</script>

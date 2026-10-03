@@ -1,0 +1,90 @@
+---
+title: "读懂生存曲线：从 S(t) 到风险比"
+description: "曲线的高低、风险的变化与删失的含义。把生存分析的几个核心概念放在一起看。"
+date: 2026-10-03
+category: "生存分析"
+tags: ["Kaplan–Meier", "风险比", "R"]
+author: "博主"
+featured: true
+demo: true
+visual: "survival"
+---
+
+import InteractiveChart from '../../components/InteractiveChart.astro';
+
+生存分析关心的是：**某个事件发生之前，时间如何分布？** 事件可以是死亡、疾病进展，也可以是复发。读图之前，先明确终点与时间起点。
+
+## 生存函数描述什么？
+
+设 $T$ 为事件发生时间，生存函数定义为：
+
+$$
+S(t)=P(T>t).
+$$
+
+它表示在时刻 $t$ 之后仍未发生事件的概率。对“疾病进展或死亡”的复合终点，曲线表示的是无进展生存，而不应被直接解释为总体生存。
+
+### 从一个简单模型开始
+
+如果事件风险随时间保持恒定，指数模型有：
+
+$$
+S(t)=e^{-\lambda t},\qquad m=\frac{\ln 2}{\lambda}.
+$$
+
+其中 $m$ 是中位生存期。下面的交互图使用这个解析模型，你可以改变风险比和对照组中位生存期。
+
+<InteractiveChart kind="survival" />
+
+> 这里展示的是模型生存函数，没有使用患者数据，也没有抽样置信区间。平滑曲线不是 Kaplan–Meier 估计。
+
+## Kaplan–Meier 为什么呈阶梯状？
+
+对观测到的事件时间，Kaplan–Meier 估计量为：
+
+$$
+\widehat S(t)=\prod_{t_i\le t}\left(1-\frac{d_i}{n_i}\right),
+$$
+
+其中 $d_i$ 是时点 $t_i$ 的事件数，$n_i$ 是事件发生前的风险集人数。曲线在发生事件时下降；仅发生删失时不直接下降，但后续风险集会变小。
+
+**删失不等于没有事件。** 它意味着只知道事件时间超过某一时点。用常规 Kaplan–Meier 方法解释结果时，需要注意独立删失等假设。
+
+| 图中的要素 | 阅读时关注什么 |
+| --- | --- |
+| 阶梯曲线 | 指定时点的未发生事件概率 |
+| 删失标记 | 哪些观测仅提供了部分随访信息 |
+| 风险集人数 | 曲线尾部还有多少信息支撑 |
+| 置信区间 | 生存概率估计的抽样不确定性 |
+
+## 风险比不是概率比
+
+在比例风险模型中：
+
+$$
+h_1(t)=h_0(t)\exp(\beta),\qquad HR=\exp(\beta).
+$$
+
+风险比比较的是瞬时事件风险。它不能直接替代某一时点的生存概率比，也不是“生存时间增加的百分比”。如果比例风险假设不合适，单一 HR 可能无法充分描述组间差异。
+
+## 用 R 画出估计曲线
+
+下面使用 `survival` 包自带的演示数据。这里的分组变量用于演示语法，不是随机治疗分组。
+
+```r
+library(survival)
+
+fit <- survfit(Surv(time, status == 2) ~ sex, data = lung)
+plot(fit,
+     col = c("#1762F5", "#129B89"),
+     lwd = 2,
+     xlab = "Time (days)",
+     ylab = "Survival probability")
+legend("topright", legend = names(fit$strata),
+       col = c("#1762F5", "#129B89"), lwd = 2)
+```
+
+## 延伸阅读
+
+- [R survival：survfit 官方文档](https://www.stat.ethz.ch/R-manual/R-devel/library/survival/html/survfit.html)
+- [survival 包的方法说明](https://www.stat.ethz.ch/R-manual/R-devel/library/survival/doc/methods.pdf)

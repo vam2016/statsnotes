@@ -1,0 +1,6 @@
+---
+import Base from '../layouts/Base.astro';
+import InteractiveChart from '../components/InteractiveChart.astro';
+import { url } from '../lib/site';
+---
+<Base title="图表实验室" active="lab"><header class="shell page-top"><span class="eyebrow">THE INTERACTIVE LAB</span><h1>把统计直觉，<span class="blue-text">变成可见。</span></h1><p>拖动参数，观察关系。每一次变化，都是一个新的问题。</p></header><section class="lab-grid shell"><div class="lab-item"><div class="lab-heading"><span class="lab-index">01 / SURVIVAL</span><h2>风险比如何改变生存曲线？</h2><p>在恒定风险的指数模型下，对比两个治疗组的生存函数。</p></div><InteractiveChart/><p class="model-note">解析模型演示：S(t) = exp(−λt)，λ = ln(2) / 对照组中位生存期。试验组风险为 HR × λ。曲线不包含抽样不确定性，亦不是 Kaplan–Meier 估计。</p><a class="text-link" href={url('posts/survival-curves/')}>阅读生存分析札记 →</a></div><div class="lab-item"><div class="lab-heading"><span class="lab-index">02 / POWER</span><h2>样本量与效能，怎样取舍？</h2><p>在效应量、样本量与显著性水平之间，建立直观的联系。</p></div><InteractiveChart kind="power"/><p class="model-note">教学演示：两组独立、1:1 分配，连续正态结局，共同标准差已知，双侧 Z 检验。样本量未包含脱落率。实际试验需按终点、设计和假设重新计算。</p><a class="text-link" href={url('posts/sample-size/')}>阅读样本量札记 →</a></div></section></Base>

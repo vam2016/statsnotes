@@ -1,0 +1,7 @@
+---
+interface Props { type?: string; }
+const { type = 'survival' } = Astro.props;
+---
+<div class:list={['article-visual', `visual-${type}`]} aria-hidden="true">
+{type === 'survival' ? <svg viewBox="0 0 500 220"><defs><linearGradient id="card-fill" x2="0" y2="1"><stop stop-color="#40b8a5" stop-opacity=".16"/><stop offset="1" stop-color="#40b8a5" stop-opacity="0"/></linearGradient></defs><path d="M50 45H450M50 90H450M50 135H450M50 180H450" class="mini-grid"/><path d="M50 40C130 60 185 105 260 122S390 158 450 172V190H50Z" fill="url(#card-fill)"/><path d="M50 40C130 60 185 105 260 122S390 158 450 172" class="mini-curve green"/><path d="M50 40C130 90 185 137 260 160S390 186 450 196" class="mini-curve blue"/><circle cx="260" cy="122" r="6" fill="#149d8e"/><text x="335" y="62" class="mini-label">S(t)</text></svg> : type === 'power' ? <svg viewBox="0 0 500 220"><path d="M50 45H450M50 90H450M50 135H450M50 180H450" class="mini-grid"/><path d="M50 185C140 185 165 155 200 110S275 44 330 35S405 30 450 30" class="mini-curve blue"/><path d="M50 75H450" class="mini-target"/><circle cx="242" cy="75" r="7" fill="#1762f5"/><text x="355" y="64" class="mini-label">80% power</text></svg> : type === 'estimand' ? <div class="estimand-orbit"><span>人群</span><span>变量</span><strong>Estimand</strong><span>治疗</span><span>汇总量</span><span>伴发事件</span></div> : <div class="writing-art"><span># 让思考成为文章</span><span>{String.raw`$$ \hat{\theta} \pm 1.96 SE $$`}</span><span>[evidence](https://…)</span><i class="writing-cursor"></i></div>}
+</div>

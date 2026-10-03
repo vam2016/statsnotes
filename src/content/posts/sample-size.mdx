@@ -1,0 +1,75 @@
+---
+title: "样本量与效能：一个可交互的起点"
+description: "效应量、显著性水平与样本量如何共同影响检验效能？从双侧正态检验建立直觉。"
+date: 2026-10-02
+category: "试验设计"
+tags: ["样本量", "Power", "交互图表"]
+author: "博主"
+demo: true
+visual: "power"
+---
+
+import InteractiveChart from '../../components/InteractiveChart.astro';
+
+样本量计算需要先回答一个问题：**我们希望对多大的效应，拥有多大的检出机会？** 本文通过简单模型展示参数之间的联系。
+
+## 先说明计算假设
+
+设两组独立，按 1:1 分配，每组样本量为 $n$。结局服从正态分布，共同标准差 $\sigma$ 已知；研究使用双侧 Z 检验。两组均值差为 $\delta$，标准化效应量为 $d=\delta/\sigma$。
+
+这是用于教学的简化条件。标准差未知时的 t 检验，以及非正态、二分类、生存终点等情形，需要对应的计算方法。
+
+## 参数如何进入公式？
+
+在真实效应为 $d$ 时，检验统计量的非中心位移为：
+
+$$
+\mu_Z=d\sqrt{\frac{n}{2}}.
+$$
+
+记 $z=z_{1-\alpha/2}$，则双侧拒绝概率为：
+
+$$
+\operatorname{Power}=1-\Phi(z-\mu_Z)+\Phi(-z-\mu_Z).
+$$
+
+下面的曲线按这个表达式计算。拖动样本量和效应量，也可以改变显著性水平与目标效能。
+
+<InteractiveChart kind="power" />
+
+## 三个值得观察的关系
+
+1. 保持效应量不变时，增加样本量通常会提高效能。
+2. 保持样本量不变时，较小的效应更难检出。
+3. 保持其他参数不变时，更严格的显著性水平会降低效能。
+
+常用的规划近似为：
+
+$$
+n\approx\frac{2\left(z_{1-\alpha/2}+z_{1-\beta}\right)^2}{d^2}.
+$$
+
+这里的 $n$ 是**每组**样本量，而不是总样本量。
+
+## 回到实际试验
+
+连续结局的两独立样本 t 检验可以用 R 的 `power.t.test()` 探索。它与上面的“标准差已知”的 Z 检验演示并非完全相同，数值出现小差异是正常的。
+
+```r
+# 标准差未知：两独立样本 t 检验
+power.t.test(
+  delta = 0.4,
+  sd = 1,
+  sig.level = 0.05,
+  power = 0.8,
+  type = "two.sample",
+  alternative = "two.sided",
+  strict = TRUE
+)
+```
+
+若按脱落率 $r$ 做简单膨胀，可以把可分析样本量除以 $1-r$，再向上取整。更复杂的缺失、入组或随访结构需要专门建模。
+
+## 延伸阅读
+
+[R：power.t.test 官方文档](https://www.stat.ethz.ch/R-manual/R-devel/library/stats/html/power.t.test.html)

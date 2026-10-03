@@ -1,0 +1,50 @@
+---
+import '../styles/global.css';
+import 'katex/dist/katex.min.css';
+import { site, url } from '../lib/site';
+import Icon from '../components/Icon.astro';
+interface Props { title?: string; description?: string; active?: string; }
+const { title, description = site.description, active = '' } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content={description}/><meta name="theme-color" content="#f5f7fb"/>
+    <title>{title ? `${title} · ${site.name}` : `${site.name} · ${site.title}`}</title>
+    <link rel="canonical" href={canonical}/>
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')}/>
+    <link rel="alternate" type="application/rss+xml" title={site.name} href={url('rss.xml')}/>
+    <meta property="og:title" content={title || `${site.name} · ${site.title}`}/>
+    <meta property="og:description" content={description}/><meta property="og:type" content="website"/>
+    <meta property="og:url" content={canonical}/>
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      try { const t = localStorage.getItem('trial-theme'); document.documentElement.dataset.theme = t || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch {}
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳转到正文</a>
+    <header class="site-header">
+      <div class="nav-shell">
+        <a class="brand" href={url()} aria-label="Trial Notes 首页"><span class="brand-mark">τ<span>·</span></span><span>Trial Notes<span class="brand-sub">临床统计札记</span></span></a>
+        <nav aria-label="主导航" id="main-nav">
+          <a class:list={[{active: active === 'posts'}]} href={url('posts/')}>文章</a>
+          <a class:list={[{active: active === 'lab'}]} href={url('lab/')}>图表实验室</a>
+          <a class:list={[{active: active === 'about'}]} href={url('about/')}>关于</a>
+        </nav>
+        <div class="nav-tools"><button class="icon-button theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题"><span class="sun-icon"><Icon name="sun"/></span><span class="moon-icon"><Icon name="moon"/></span></button><button class="icon-button mobile-menu" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航"><Icon name="menu"/></button></div>
+      </div>
+    </header>
+    <main id="main"><slot/></main>
+    <footer class="site-footer shell">
+      <div><a href={url()} class="footer-brand">Trial Notes<span>临床统计札记</span></a><p>从数据出发，向证据靠近。</p></div>
+      <div class="footer-right"><a href={url('rss.xml')}><Icon name="rss" size={15}/> RSS 订阅</a><span>© {new Date().getFullYear()} {site.author}</span></div>
+    </footer>
+    <script>
+      import { initSite } from '../lib/client';
+      initSite();
+    </script>
+  </body>
+</html>

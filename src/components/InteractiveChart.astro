@@ -1,0 +1,35 @@
+---
+import Icon from './Icon.astro';
+import { defaults, graph, type Kind } from '../lib/charts';
+import { power } from '../lib/statistics';
+interface Props { kind?: Kind; compact?: boolean; }
+const { kind = 'survival', compact = false } = Astro.props;
+const id = `chart-${kind}-${Math.random().toString(36).slice(2, 8)}`;
+---
+<section class:list={['interactive-chart', {compact}]} data-chart={kind} aria-label={kind === 'survival' ? '交互生存函数演示' : '交互检验效能演示'}>
+  <div class="chart-top"><span class="chart-kicker"><span class="live-dot"></span>{kind === 'survival' ? '生存函数' : '检验效能'}</span><span class="chart-model">{kind === 'survival' ? '指数模型 · 演示' : '双侧 Z 检验 · 演示'}</span></div>
+  <div class="chart-readout" data-readout aria-live="polite"><strong>{kind === 'survival' ? (defaults.median / defaults.hr).toFixed(1) : (power(defaults.n, defaults.effect, defaults.alpha) * 100).toFixed(1)}<small>{kind === 'survival' ? ' 月' : '%'}</small></strong><span>{kind === 'survival' ? '模型中的试验组中位生存期' : '当前参数下的检验效能'}</span></div>
+  <div class="chart-legend"><span><i class="legend-dot primary"></i>{kind === 'survival' ? '试验组' : '效能曲线'}</span>{kind === 'survival' && <span><i class="legend-dot secondary"></i>对照组</span>}<span class="hover-tip">移动指针查看数值</span></div>
+  <div class="chart-stage">
+    <svg class="chart-svg" viewBox="0 0 640 320" role="img" aria-labelledby={`${id}-title ${id}-desc`}>
+      <title id={`${id}-title`}>{kind === 'survival' ? '指数生存曲线' : '检验效能随样本量变化的曲线'}</title>
+      <desc id={`${id}-desc`}>{kind === 'survival' ? '演示模型：S(t)=exp(-log(2)×HR×t/中位生存期)，使用下方滑块调整风险比。' : '两组独立、等样本量、已知共同标准差的双侧正态检验。图下显示当前参数的精确数值。'}</desc>
+      <g class="plot" set:html={graph(kind, defaults)}/><line class="crosshair" y1="42" y2="248" x1="60" x2="60"/>
+    </svg>
+    <div class="chart-tooltip" hidden></div>
+  </div>
+  <div class="chart-controls">
+    {kind === 'survival' ? <>
+      <label for={`${id}-hr`}>风险比 HR <output data-value="hr">0.68</output><input id={`${id}-hr`} type="range" min="0.4" max="1.3" step="0.01" value="0.68" data-param="hr"/><span class="range-ends"><span>0.40</span><span>1.30</span></span></label>
+      {!compact && <label for={`${id}-median`}>对照组中位生存期（月）<output data-value="median">12</output><input id={`${id}-median`} type="range" min="6" max="24" step="1" value="12" data-param="median"/><span class="range-ends"><span>6 个月</span><span>24 个月</span></span></label>}
+    </> : <>
+      <label for={`${id}-effect`}>标准化效应量 δ/σ <output data-value="effect">0.40</output><input id={`${id}-effect`} type="range" min="0.1" max="1" step="0.01" value="0.4" data-param="effect"/><span class="range-ends"><span>0.10</span><span>1.00</span></span></label>
+      <label for={`${id}-n`}>每组样本量 n <output data-value="n">100</output><input id={`${id}-n`} type="range" min="10" max="400" step="1" value="100" data-param="n"/><span class="range-ends"><span>10 人</span><span>400 人</span></span></label>
+      <div class="select-row"><label for={`${id}-alpha`}>双侧 α<select id={`${id}-alpha`} data-param="alpha"><option value="0.05">0.05</option><option value="0.01">0.01</option><option value="0.1">0.10</option></select></label><label for={`${id}-target`}>目标效能<select id={`${id}-target`} data-param="target"><option value="0.8">80%</option><option value="0.9">90%</option></select></label></div>
+    </>}
+  </div>
+  <p class="chart-hint" aria-live="polite"></p>
+  {!compact && <div class="chart-actions"><button data-reset>恢复默认</button><button data-download><Icon name="download" size={15}/> 导出 CSV</button></div>}
+  <noscript><p>启用 JavaScript 后可调整参数。上方显示默认参数下的静态曲线。</p></noscript>
+</section>
+<script>import { initCharts } from '../lib/charts'; initCharts();</script>

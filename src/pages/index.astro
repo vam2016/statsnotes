@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import InteractiveChart from '../components/InteractiveChart.astro';
+import ArticleList from '../components/ArticleList.astro';
+import { allPosts, url } from '../lib/site';
+const posts = await allPosts();
+---
+<Base>
+  <section class="home-hero shell">
+    <div class="hero-copy"><div class="eyebrow"><span class="eyebrow-line"></span>CLINICAL TRIALS / BIOSTATISTICS</div><h1>让数据说话。<br/>让证据<span class="blue-text">更清晰。</span></h1><p class="hero-description">关于临床试验、生物统计与数据思考的个人札记。<br class="desktop-break"/>在方法与实践之间，记录每一次理解。</p><div class="hero-actions"><a class="button primary-button" href="#articles">阅读札记 <Icon name="arrow" size={18}/></a><a class="text-link" href={url('lab/')}>探索交互图表 <Icon name="up" size={16}/></a></div><div class="hero-footnote"><span class="tiny-chart">▂ ▄ ▆ ▃ ▇</span><span>从一个好问题，到一份可靠的证据。</span></div></div>
+    <div class="hero-chart-wrap"><div class="chart-orbit orbit-one"></div><div class="chart-orbit orbit-two"></div><InteractiveChart compact/><div class="hero-chart-caption"><span>FIG. 01</span> 用交互理解统计 · 试着拖动滑块</div></div>
+  </section>
+  <div class="topic-strip shell"><span>关注的方向</span><div><span>临床试验设计</span><i>·</i><span>生存分析</span><i>·</i><span>统计推断</span><i>·</i><span>R / SAS 实践</span></div><Icon name="chart" size={19}/></div>
+  <section id="articles" class="article-section shell"><div class="section-heading"><div><span class="eyebrow">THE NOTEBOOK</span><h2>最近的思考</h2></div><a class="text-link" href={url('posts/')}>文章归档 <Icon name="arrow" size={17}/></a></div><ArticleList posts={posts.slice(0, 3)}/></section>
+  <section class="lab-teaser shell reveal"><div class="lab-teaser-art" aria-hidden="true"><svg viewBox="0 0 220 130"><path d="M10 110C65 110 75 80 100 50S160 20 210 20"/><path d="M10 60H210"/><circle cx="94" cy="60" r="5"/></svg><span>δ · α · n · 1−β</span></div><div><span class="eyebrow">THINK WITH YOUR HANDS</span><h2>有些方法，动手就懂了。</h2><p>调整一个参数，看看曲线如何变化。让统计直觉有迹可循。</p></div><a class="button secondary-button" href={url('lab/')}>进入图表实验室 <Icon name="arrow" size={18}/></a></section>
+</Base>
