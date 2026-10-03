@@ -6,6 +6,7 @@ category: "写作札记"
 tags: ["Markdown", "LaTeX", "写作"]
 author: "博主"
 demo: true
+draft: true
 visual: "writing"
 ---
 
@@ -46,7 +47,7 @@ $$
 
 ## 链接、表格与代码
 
-可以链接到 [R 项目官网](https://www.r-project.org/)，也可以链接到博客内部的[图表实验室](/lab/)。
+可以链接到 [R 项目官网](https://www.r-project.org/)，也可以链接到博客内部的[零散笔记](/notes/)。
 
 | 写作元素 | 适用场景 |
 | --- | --- |

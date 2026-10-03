@@ -28,6 +28,8 @@ export function graph(kind: Kind, p: Parameters): string {
 }
 export function initCharts() {
   document.querySelectorAll<HTMLElement>('[data-chart]').forEach(root => {
+    if (root.dataset.initialized) return;
+    root.dataset.initialized = 'true';
     const kind = root.dataset.chart as Kind;
     let p = { ...defaults };
     const svg = root.querySelector<SVGSVGElement>('svg.chart-svg')!;

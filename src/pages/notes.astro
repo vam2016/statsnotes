@@ -1,0 +1,7 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleList from '../components/ArticleList.astro';
+import { allPosts } from '../lib/site';
+const posts = (await allPosts()).filter(p => p.data.kind === 'note');
+---
+<Base title="零散笔记" active="notes"><header class="shell page-top"><span class="eyebrow">FIELD NOTES</span><h1>把片刻的理解，<span class="blue-text">留在这里。</span></h1><p>方法、实践与临床问题。不必成体系，也值得写下来。</p></header><section class="shell archive-section"><ArticleList posts={posts}/></section></Base>

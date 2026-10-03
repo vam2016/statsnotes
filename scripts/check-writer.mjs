@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import { newDraft, sourceText, draftFromSource, validateDraft, githubEditUrl, bookMetadata } from '../src/lib/writer-model.ts';
+const books=[{id:'test-book',title:'测试用书',description:'',chapters:[{id:'first-chapter',order:1}]}];
+const d=newDraft();Object.assign(d.fields,{title:'引号 " 与公式 $\\theta$：札记',description:'多行\n摘要',slug:'test-note',tags:'样本量，R, 方法',date:'2026-10-03'});d.body='正文与 $\\theta$。\n\n```r\nx <- 1\n```\n';d.extra={updated:'2026-10-03',custom:'preserve-me',book:'stale-book',chapter:2};
+assert.deepEqual(validateDraft(d,books,[]),[]);
+let imported=draftFromSource(sourceText(d),'test-note.md',books);
+assert.equal(imported.fields.title,d.fields.title);assert.equal(imported.body,d.body);assert.equal(imported.extra.custom,'preserve-me');assert.equal(imported.extra.book,undefined);assert.equal(imported.extra.draft,true);
+assert.equal(draftFromSource(sourceText(d,true),'test-note.md',books).extra.draft,false);
+assert.equal(githubEditUrl(d,[]),'https://github.com/vam2016/statsnotes/new/main/src/content/posts?filename=test-note.md');
+assert.match(githubEditUrl(d,[{id:'test-note',path:'src/content/posts/test-note.md',body:'',data:{}}]),/\/edit\/main\//);
+d.fields.slug='../bad';assert.ok(validateDraft(d,books,[]).length);d.fields.slug='test-note';d.fields.date='2026-02-30';assert.ok(validateDraft(d,books,[]).length);d.fields.date='2026-10-03';
+d.fields.kind='book';d.fields.bookChoice='test-book';d.fields.chapter='1';assert.ok(validateDraft(d,books,[],true).length);d.fields.chapter='2';assert.deepEqual(validateDraft(d,books,[],true),[]);
+d.fields.bookChoice='new';d.fields.bookId='new-book';d.fields.bookTitle='新书';assert.equal(bookMetadata(d).title,'新书');assert.deepEqual(validateDraft(d,books,[],true),[]);
+assert.throws(()=>draftFromSource('没有文章信息','bad.md',books));
+assert.ok(validateDraft(d,books,[{id:'test-note',path:'src/content/posts/test-note.mdx',body:'',data:{}}],true).length);
+console.log('PASS: metadata round trip, preservation, draft/public status, dates, path validation, chapter collision and GitHub editing targets.');

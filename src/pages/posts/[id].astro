@@ -2,16 +2,20 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import Icon from '../../components/Icon.astro';
-import { allPosts, dateLabel, readingMinutes, url } from '../../lib/site';
+import { allPosts, bookShelves, dateLabel, readingMinutes, url } from '../../lib/site';
 export async function getStaticPaths() { return (await allPosts()).map(post => ({ params: { id: post.id }, props: { post } })); }
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
-const others = (await allPosts()).filter(p => p.id !== post.id).slice(0, 2);
+const book = post.data.kind === 'book' ? (await bookShelves()).find(b => b.id === post.data.book) : undefined;
+const position = book?.chapters.findIndex(p => p.id === post.id) ?? -1;
+const previous = book?.chapters[position - 1];
+const next = book?.chapters[position + 1];
+const others = (await allPosts()).filter(p => p.id !== post.id && p.data.kind === post.data.kind).slice(0, 2);
 ---
-<Base title={post.data.title} description={post.data.description} active="posts">
+<Base title={post.data.title} description={post.data.description} active={book ? 'books' : 'notes'}>
 <div class="reading-progress" aria-hidden="true"></div>
-<header class="article-header shell"><a class="back-link" href={url('posts/')}>← 全部文章</a><div class="article-labels"><span class="category-label">{post.data.category}</span>{post.data.demo && <span class="demo-badge">示例文章</span>}</div><h1>{post.data.title}</h1><p>{post.data.description}</p><div class="article-byline"><span class="author-avatar">τ</span><span>{post.data.author}</span><span>·</span><time datetime={post.data.date.toISOString()}>{dateLabel(post.data.date)}</time><span>·</span><span>{readingMinutes(post.body)} 分钟阅读</span>{post.data.updated && <span>更新于 {dateLabel(post.data.updated)}</span>}</div></header>
-<div class="article-layout shell"><article class="prose">{post.data.demo && <aside class="article-note">这是一篇用于展示排版与交互功能的示例文章，可在正式写作后替换。</aside>}<Content/><div class="article-tags">{post.data.tags.map(tag => <span>#{tag}</span>)}</div><div class="article-end"><span>— 札记到这里，思考还在继续。</span><button class="share-button"><Icon name="copy" size={16}/><span>复制文章链接</span></button></div></article><aside class="toc"><span class="eyebrow">本文目录</span><nav aria-label="文章目录">{headings.filter(h => h.depth <= 3).map(h => <a class:list={[{sub: h.depth === 3}]} href={`#${h.slug}`}>{h.text}</a>)}</nav><a href="#main" class="back-top">回到顶部 ↑</a></aside></div>
+<header class="article-header shell"><a class="back-link" href={url(book ? `books/${book.id}/` : 'notes/')}>← {book ? book.data.title : '零散笔记'}</a><div class="article-labels"><span class="category-label">{book ? `读书笔记 · 第 ${post.data.chapter} 篇` : post.data.category}</span>{post.data.demo && <span class="demo-badge">示例笔记</span>}</div><h1>{post.data.title}</h1><p>{post.data.description}</p><div class="article-byline"><span class="author-avatar">τ</span><span>{post.data.author}</span><span>·</span><time datetime={post.data.date.toISOString()}>{dateLabel(post.data.date)}</time><span>·</span><span>{readingMinutes(post.body)} 分钟阅读</span>{post.data.updated && <span>更新于 {dateLabel(post.data.updated)}</span>}</div></header>
+<div class="article-layout shell"><article class="prose">{post.data.demo && <aside class="article-note">这是一篇用于展示排版与交互功能的示例笔记，可在正式写作后替换。</aside>}<Content/>{book && <div class="chapter-navigation"><span class="eyebrow">继续这本书</span><div>{previous ? <a href={url(`posts/${previous.id}/`)}><small>← 上一篇</small><strong>{previous.data.title}</strong></a> : <a href={url(`books/${book.id}/`)}><small>回到学习目录</small><strong>{book.data.title}</strong></a>}{next ? <a href={url(`posts/${next.id}/`)}><small>下一篇 →</small><strong>{next.data.title}</strong></a> : <a href={url(`books/${book.id}/`)}><small>回到学习目录 →</small><strong>查看这本书的全部笔记</strong></a>}</div></div>}<div class="article-tags">{post.data.tags.map(tag => <span>#{tag}</span>)}</div><div class="article-end"><span>— 札记到这里，思考还在继续。</span><button class="share-button"><Icon name="copy" size={16}/><span>复制文章链接</span></button></div></article><aside class="toc">{book && <div class="book-toc"><a href={url(`books/${book.id}/`)} class="book-toc-title">{book.data.title}</a><nav aria-label="书籍章节">{book.chapters.map(c => <a class:list={[{current: c.id === post.id}]} href={url(`posts/${c.id}/`)}>{String(c.data.chapter).padStart(2, '0')} · {c.data.title}</a>)}</nav></div>}<span class="eyebrow">本文目录</span><nav aria-label="文章目录">{headings.filter(h => h.depth <= 3).map(h => <a class:list={[{sub: h.depth === 3}]} href={`#${h.slug}`}>{h.text}</a>)}</nav><a href="#main" class="back-top">回到顶部 ↑</a></aside></div>
 <section class="related shell"><h2>继续阅读</h2><div>{others.map(p => <a href={url(`posts/${p.id}/`)}><span>{p.data.category}</span><h3>{p.data.title}</h3><Icon name="arrow"/></a>)}</div></section>
 <script>
   document.querySelector('.share-button')?.addEventListener('click', async event => {
@@ -19,7 +23,7 @@ const others = (await allPosts()).filter(p => p.id !== post.id).slice(0, 2);
     try { await navigator.clipboard.writeText(location.href); span.textContent = '链接已复制'; } catch { span.textContent = '请复制地址栏链接'; }
     setTimeout(() => { span.textContent = '复制文章链接'; }, 2200);
   });
-  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc nav a')];
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('.toc nav[aria-label="文章目录"] a')];
   if ('IntersectionObserver' in window) {
     const obs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) links.forEach(l => l.classList.toggle('current', l.hash === `#${e.target.id}`)); }), { rootMargin: '-15% 0px -70% 0px' });
     document.querySelectorAll('.prose h2, .prose h3').forEach(h => obs.observe(h));

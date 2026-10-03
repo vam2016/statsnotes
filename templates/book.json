@@ -1,0 +1,8 @@
+{
+  "title": "完整书名",
+  "description": "学习这本书的目标与简介。",
+  "author": "原书作者（可选，未填时删除这个字段）",
+  "edition": "版本（可选，未填时删除这个字段）",
+  "color": "blue",
+  "demo": false
+}

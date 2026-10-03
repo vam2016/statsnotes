@@ -3,15 +3,15 @@ import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import { site, url } from '../lib/site';
 import Icon from '../components/Icon.astro';
-interface Props { title?: string; description?: string; active?: string; }
-const { title, description = site.description, active = '' } = Astro.props;
+interface Props { title?: string; description?: string; active?: string; noindex?: boolean; }
+const { title, description = site.description, active = '', noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="description" content={description}/><meta name="theme-color" content="#f5f7fb"/>
+    <meta name="description" content={description}/>{noindex && <meta name="robots" content="noindex, nofollow"/>}<meta name="theme-color" content="#f5f7fb"/>
     <title>{title ? `${title} · ${site.name}` : `${site.name} · ${site.title}`}</title>
     <link rel="canonical" href={canonical}/>
     <link rel="icon" type="image/svg+xml" href={url('favicon.svg')}/>
@@ -30,17 +30,17 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       <div class="nav-shell">
         <a class="brand" href={url()} aria-label="Trial Notes 首页"><span class="brand-mark">τ<span>·</span></span><span>Trial Notes<span class="brand-sub">临床统计札记</span></span></a>
         <nav aria-label="主导航" id="main-nav">
-          <a class:list={[{active: active === 'posts'}]} href={url('posts/')}>文章</a>
-          <a class:list={[{active: active === 'lab'}]} href={url('lab/')}>图表实验室</a>
+          <a class:list={[{active: active === 'notes'}]} href={url('notes/')}>零散笔记</a>
+          <a class:list={[{active: active === 'books'}]} href={url('books/')}>读书笔记</a>
           <a class:list={[{active: active === 'about'}]} href={url('about/')}>关于</a>
         </nav>
-        <div class="nav-tools"><button class="icon-button theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题"><span class="sun-icon"><Icon name="sun"/></span><span class="moon-icon"><Icon name="moon"/></span></button><button class="icon-button mobile-menu" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航"><Icon name="menu"/></button></div>
+        <div class="nav-tools"><a class="writer-entry" href={url('write/')}><Icon name="pen" size={16}/><span>写作</span></a><button class="icon-button theme-toggle" aria-label="切换深浅色主题" title="切换深浅色主题"><span class="sun-icon"><Icon name="sun"/></span><span class="moon-icon"><Icon name="moon"/></span></button><button class="icon-button mobile-menu" aria-expanded="false" aria-controls="main-nav" aria-label="打开导航"><Icon name="menu"/></button></div>
       </div>
     </header>
     <main id="main"><slot/></main>
     <footer class="site-footer shell">
       <div><a href={url()} class="footer-brand">Trial Notes<span>临床统计札记</span></a><p>从数据出发，向证据靠近。</p></div>
-      <div class="footer-right"><a href={url('rss.xml')}><Icon name="rss" size={15}/> RSS 订阅</a><span>© {new Date().getFullYear()} {site.author}</span></div>
+      <div class="footer-right"><a href={url('write/')}>写作台</a><a href={url('rss.xml')}><Icon name="rss" size={15}/> RSS 订阅</a><span>© {new Date().getFullYear()} {site.author}</span></div>
     </footer>
     <script>
       import { initSite } from '../lib/client';

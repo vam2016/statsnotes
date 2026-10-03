@@ -1,7 +1,5 @@
 ---
 import Base from '../../layouts/Base.astro';
-import ArticleList from '../../components/ArticleList.astro';
-import { allPosts } from '../../lib/site';
-const posts = await allPosts();
+import { url } from '../../lib/site';
 ---
-<Base title="文章归档" active="posts"><div class="shell page-top"><span class="eyebrow">THE NOTEBOOK</span><h1>写下来，想明白。</h1><p>临床问题、统计方法，以及实践中的细节。</p></div><section class="shell archive-section"><ArticleList posts={posts}/></section></Base>
+<Base title="笔记归档"><meta http-equiv="refresh" content={`0;url=${url('notes/')}`}/><div class="shell page-top"><h1>零散笔记</h1><p>笔记归档已搬到新板块。</p><a class="button primary-button" href={url('notes/')}>打开零散笔记 →</a></div></Base>

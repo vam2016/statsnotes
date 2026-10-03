@@ -1,55 +1,117 @@
 # Trial Notes · 临床统计札记
 
-一个面向临床试验生物统计写作的个人博客，署名为「博主」。静态站点，发布在 **https://vam2016.github.io/statsnotes/**，无需购买服务器或域名。
+博客：**https://vam2016.github.io/statsnotes/**
 
-## 第一版功能
+两个阅读板块：**零散笔记**和**读书笔记**。图表是笔记内容的一部分。静态博客继续使用 GitHub Pages，不需要服务器或自购域名。
 
-- Markdown / MDX 文章，支持 LaTeX 行内、独立和多行公式（KaTeX）。
-- 图片、超链接、表格、代码高亮与复制；MDX 还可以加入交互组件和 HTML5 音视频。
-- 生存函数和检验效能的交互演示：滑块、悬浮读数、参数复位、CSV 导出。
-- 文章搜索、分类筛选、阅读目录、进度条、链接复制、RSS 和站点地图。
-- 手机布局、深浅色主题、键盘操作与减少动态效果设置。
-- 提交到 main 后，由 GitHub Actions 自动构建并发布。
+## 推荐的写作方式：打开写作台
 
-随附四篇**示例文章**；它们不是博主已发表的作品。正式写作后可以删除示例文件，或设为 `draft: true`。
+**https://vam2016.github.io/statsnotes/write/**
 
-## 在 GitHub 上发布
+不用安装编辑软件，也不用手写文章信息：
 
-项目已配置仓库 `vam2016/statsnotes`。在仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**，再在 **Actions → Deploy Trial Notes to GitHub Pages → Run workflow** 运行一次。
+1. 选择「新建零散笔记」或「新建读书笔记」。填写标题、摘要、日期和文件名。
+2. 在左侧正文区写 Markdown，在右侧查看文字、LaTeX 公式、图片和表格预览。
+3. 工具栏可以插入标题、加粗、公式、代码、图片和本站的两类交互图表；插入图表会自动切换为 MDX。
+4. 草稿自动保存在**当前浏览器**，可切换多篇草稿、导入 `.md` / `.mdx` 文件，也可载入本站已发布笔记继续修改。
+5. 写好后点「准备发布」→「复制完整笔记」→「打开 GitHub 编辑页」。在 GitHub 将文件内容全部替换为复制的文本，选择 Commit changes 提交到 main。
+6. GitHub 自动检查并发布。可在发布窗口点击「查看发布进度」。
 
-以后更新 main 分支，部署会自动执行；成功后访问 https://vam2016.github.io/statsnotes/ 。未确认工作流成功之前，不能把这个地址视为已上线。
+准备发布的文本自动设为 `draft: false`。导出的普通草稿设为 `draft: true`，不会出现在公开博客中。准备发布不会代替你提交 GitHub，也不会索取账户密码或访问令牌；最后的提交仍在 GitHub 网页完成。
 
-部署流程通过 GitHub Pages 输出取得域名和项目路径，因此文章链接、CSS、公式字体、图片、RSS 均兼容 `/statsnotes/`。GitHub Free 的 Pages 使用公开仓库；不要将未公开的试验数据放到这个公开博客。
+浏览器草稿使用 IndexedDB。它不会同步到其他电脑或浏览器；清理网站数据会删除草稿。请定期点击「导出草稿」或「导出文章包」备份。保存空间不可用时，写作台会提示你导出，不会假装保存成功。
 
-## 不安装软件也可以写文章
+### 图片如何发布？
 
-1. 在仓库打开 `templates/article.md`，复制内容。
-2. 在 `src/content/posts/` 目录选择 **Add file → Create new file**，文件名如 `my-first-note.md`（推荐英文小写和连字符）。
-3. 粘贴模板，修改标题、摘要、日期、分类、标签及正文。
-4. 草稿使用 `draft: true`。正式发布时改为 `draft: false`，保留 `demo: false`。
-5. 提交到 main。待 Actions 显示成功后，文章会自动出现在博客中。
+在工具栏选择图片，可在正文中插入图片并预览。图片和草稿一起保存在当前浏览器。
 
-文件名决定文章地址，例如 `my-first-note.md` 对应 `/statsnotes/posts/my-first-note/`。公开文章尽量不要随意改名，避免旧链接失效。日期使用 `YYYY-MM-DD`；`updated` 可选，用来显示更新时间。分类由文章元数据自动汇总。`visual` 可以选 `survival`、`power`、`estimand`、`writing`，决定列表卡片的插图。
+点击「导出文章包」，会得到 ZIP，包含：
 
-## 公式、图片、链接和音视频
+- `src/content/posts/文件名.md` 或 `.mdx`：文章源文件。
+- `public/images/`：新增图片。
+- `src/content/books/书籍标识.json`：新书信息（如果有）。
+- `发布说明.txt`。
+
+将图片上传到 GitHub 的 `public/images/`，再发布笔记。写作台的发布窗口有对应目录入口。本地图片目前支持 PNG、JPG、WebP、GIF，单张不超过 10 MB；也可直接在正文中使用已有的公开图片 URL。
+
+### 怎样开始一本新书？
+
+1. 在写作台选择「新建读书笔记」。
+2. 「书籍」选择「添加一本新书」，填写真实书名、书籍标识、原书作者与版本（作者、版本可选）。
+3. 为章节填写**正整数顺序**，例如 1、2、3。同一本书的所有笔记使用相同书籍标识。
+4. 点击「准备发布」。先复制并提交书籍信息，再复制并提交章节笔记。发布窗口提供两个文件各自的 GitHub 入口。
+5. 以后写下一章时，从列表中选择同一本书，写作台会建议下一个序号。
+
+书架、学习目录、前后篇导航和章节侧栏会自动生成。为避免章节混乱，同一本书不能有两篇公开笔记使用相同顺序。
+
+书籍标识决定书籍地址，例如 `clinical-trials-book` → `/books/clinical-trials-book/`。笔记文件名决定原有文章地址，仍为 `/posts/笔记文件名/`。文件名和书籍标识建议使用英文小写、数字和连字符，公开之后尽量保持稳定。
+
+## 直接使用 Markdown 文件
+
+模板位于 `templates/`：
+
+- `note.md`：零散笔记。
+- `book-note.md`：章节笔记。
+- `book.json`：书籍信息。
+- `article.mdx`：带交互图表的笔记（保留上一版模板兼容）。
+
+零散笔记的信息示例：
+
+```yaml
+---
+title: "一篇笔记"
+description: "摘要"
+date: 2026-10-03
+kind: note
+category: "统计推断"
+tags: ["R"]
+author: "博主"
+draft: false
+visual: estimand
+---
+```
+
+读书笔记再加上：
+
+```yaml
+kind: book
+book: clinical-trials-book
+chapter: 1
+```
+
+书籍信息保存到 `src/content/books/clinical-trials-book.json`：
+
+```json
+{
+  "title": "实际书名",
+  "description": "学习目标与简介",
+  "author": "原书作者",
+  "edition": "第 2 版",
+  "color": "blue",
+  "demo": false
+}
+```
+
+`color` 支持 `blue`、`green`、`violet`，决定书架上的封面颜色。`updated` 是可选的笔记更新时间。`visual` 支持 `writing`、`estimand`、`survival`、`power`，决定列表插图。
+
+## 公式与交互图表
 
 行内公式用 `$...$`，独立公式用 `$$`：
 
 ```markdown
-行内公式：$\widehat\theta$。
+参数估计为 $\widehat\theta$。
 
 $$
 \widehat\theta\pm z_{1-\alpha/2}SE(\widehat\theta)
 $$
 
 ![图片描述](/images/my-figure.png)
-[外部链接](https://www.r-project.org/)
-[博客内部链接](/lab/)
+[另一篇笔记](/posts/sample-size/)
 ```
 
-把本地图片上传到 `public/images/`。Markdown 中 `/images/...` 和 `/lab/` 这样的站内路径会自动加上仓库前缀。不依赖外部 CDN 的公式渲染器、样式和字体已经打包进站点。
+站内根路径会自动加上 `/statsnotes/`，公式样式和字体随网站打包。
 
-MDX 中可以使用交互组件（复制 `templates/article.mdx` 到 `src/content/posts/`）：
+MDX 可以使用交互图表：
 
 ```mdx
 import InteractiveChart from '../../components/InteractiveChart.astro';
@@ -58,9 +120,9 @@ import InteractiveChart from '../../components/InteractiveChart.astro';
 <InteractiveChart kind="survival" />
 ```
 
-MDX 使用 JavaScript/JSX 语法，正文中的特殊花括号需要转义。普通文章优先用 `.md`。
+写作台预览 Markdown、LaTeX 和上述两类交互图表。其他 MDX 组件、任意 JSX 或多行 import 不在写作台执行；完整编译由 GitHub 构建完成。普通笔记建议用 Markdown，确需组件时再使用 MDX。
 
-本地视频或音频放入 `public/media/`，在 MDX 中使用下面方式，确保项目路径正确：
+视频和音频可在 MDX 中使用 HTML5 元素，将文件放在 `public/media/`：
 
 ```mdx
 import { url } from '../../lib/site';
@@ -69,56 +131,57 @@ import { url } from '../../lib/site';
 <audio controls preload="metadata" src={url('media/demo.mp3')} />
 ```
 
-视频较大时，推荐使用外部媒体托管的公开地址，减少仓库体积。远程内容是否可用取决于其服务与访问权限。
+## 可选：本地编辑
 
-## 本地预览与写作
-
-需要 Node.js 24（建议 24.16 或更新的 24.x）。
+需要 Node.js 24（建议 24.16 或更新的 24.x）：
 
 ```sh
 npm ci
 npm run dev
 ```
 
-访问终端给出的预览地址。默认本地路径是 `/`；如需验证 GitHub 项目路径：
+本地预览默认 `/`，GitHub 项目路径预览：
 
 ```sh
 GITHUB_REPOSITORY=vam2016/statsnotes npm run dev
-# 打开 http://localhost:4321/statsnotes/
+# http://localhost:4321/statsnotes/
 ```
 
-新建文章可以复制模板，也可以运行：
+创建笔记和书籍：
 
 ```sh
-npm run new:post -- my-first-note "我的第一篇札记"
+npm run new:note -- my-note "我的零散笔记"
+npm run new:book -- my-book "实际书名"
+npm run new:note -- my-book-ch01 "第一章笔记" --book my-book --chapter 1
+# 加 --mdx 可创建 MDX 文件。
 ```
+
+`new:post` 仍兼容零散笔记命令。创建的笔记默认草稿，不会覆盖同名文件。
 
 验证与构建：
 
 ```sh
 npm run check
+npm test
 GITHUB_REPOSITORY=vam2016/statsnotes npm run build
 GITHUB_REPOSITORY=vam2016/statsnotes npm run preview
 ```
 
-静态产物在 `dist/`，不需要运行后端。
+## 当前示例与兼容链接
 
-## 修改站名和外观
+当前零散笔记有 3 篇示例，书架有 1 个**读书笔记结构示例**及 2 篇章节示例。结构示例没有对应实际书籍，也不是从某本书摘录。可删除这些示例，或将章节和笔记设为 `draft: true`。
 
-- `src/lib/site.ts`：博客名、中文名、署名、描述。
-- `src/pages/index.astro`：首页文案。
-- `src/pages/about.astro`：博主介绍；目前没有编造学历、任职或个人经历。
-- `src/styles/global.css`：颜色、字体、间距、响应式布局。
-- `public/favicon.svg`：站点图标。
+上一版的文章地址保留。`/posts/` 转向零散笔记，`/lab/` 转向带图表的样本量笔记。主导航为「零散笔记 / 读书笔记 / 关于」，不再有独立图表实验室。
 
-## 图表的计算范围
+`src/lib/site.ts` 修改站名、署名与简介；`src/pages/about.astro` 修改博主介绍；`src/styles/global.css` 修改样式。
 
-生存图是恒定风险下的指数生存函数，使用解析表达式 `S(t)=exp(-λt)`，不包含抽样置信区间，亦不是患者数据的 Kaplan–Meier 估计。
+## 发布配置
 
-效能图是两组独立、等样本量、正态结局、已知共同标准差的双侧 Z 检验。标准正态 CDF 使用数值近似；给定目标效能时按整数样本量求解。它不考虑脱落、未知方差或复杂设计。随附的 R t 检验例子采用不同假设，不能期待与 Z 检验演示完全一致。
+仓库已启用 GitHub Pages / GitHub Actions。提交 main 后，工作流先检查内容、类型与数值，再构建静态页面并发布。`draft: true` 的笔记不会进入页面、RSS、站点地图或写作台的公开笔记列表。书籍引用不存在或章节顺序重复时，构建会明确报错。
 
-## 官方参考
+## 图表说明与参考
+
+生存图是恒定风险下的指数生存函数，不包含抽样置信区间，亦不是患者数据的 Kaplan–Meier 估计。效能图采用两组独立、等样本量、已知共同标准差的双侧 Z 检验，未包含脱落或复杂设计。
 
 - [Astro Markdown 与 MDX](https://docs.astro.build/en/guides/markdown-content/)
-- [Astro 部署到 GitHub Pages](https://docs.astro.build/en/guides/deploy/github/)
-- [GitHub Pages 官方说明](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
+- [GitHub Pages 发布](https://docs.astro.build/en/guides/deploy/github/)

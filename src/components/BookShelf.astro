@@ -1,0 +1,9 @@
+---
+import { bookShelves, url, dateLabel } from '../lib/site';
+import Icon from './Icon.astro';
+const { limit } = Astro.props;
+const shelves = await bookShelves();
+const books = limit ? shelves.slice(0, limit) : shelves;
+---
+<div class="book-shelf">{books.map(book => <article class:list={['book-card', `book-color-${book.data.color}`, 'reveal']}><a class="book-card-link" href={url(`books/${book.id}/`)}><div class="book-object" aria-hidden="true"><span class="book-cover-eyebrow">TRIAL NOTES / STUDY</span><strong>{book.data.title}</strong><span class="book-cover-bottom">{book.data.demo ? '目录与章节 · 示例' : book.data.author || '系统学习笔记'}</span></div><div class="book-card-details"><div class="book-card-meta">读书笔记 {book.data.demo && <span class="demo-badge">结构示例</span>}</div><h3>{book.data.title}</h3>{book.data.author && <p class="book-author">{book.data.author}{book.data.edition && ` · ${book.data.edition}`}</p>}<p>{book.data.description}</p><div class="book-card-bottom"><span>{book.chapters.length} 篇章节笔记</span>{book.updated && <time datetime={book.updated.toISOString()}>{dateLabel(book.updated)} 更新</time>}<Icon name="arrow" size={18}/></div></div></a></article>)}</div>
+{!books.length && <div class="book-empty"><Icon name="book" size={32}/><h3>下一段系统学习，从一本书开始。</h3><p>第一本书的笔记发布后，会在这里按章节整理。</p></div>}

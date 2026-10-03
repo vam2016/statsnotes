@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import InteractiveChart from '../components/InteractiveChart.astro';
+import { allPosts, bookShelves } from '../lib/site';
+const sourcePaths = Object.keys(import.meta.glob('../content/posts/**/*.{md,mdx}'));
+const posts = await allPosts();
+const shelves = await bookShelves();
+const initial = {
+  books: shelves.map(b => ({ id: b.id, ...b.data, chapters: b.chapters.map(c => ({ id: c.id, order: c.data.chapter })) })),
+  posts: posts.map(p => ({ id: p.id, path: `src/content/posts/${p.id}.${sourcePaths.includes(`../content/posts/${p.id}.mdx`) ? 'mdx' : 'md'}`, data: p.data, body: p.body || '' })),
+};
+---
+<Base title="写作台" noindex>
+<section class="writer-shell">
+  <header class="writer-heading"><div><span class="eyebrow">YOUR WRITING DESK</span><h1>写作台</h1><p>草稿留在当前浏览器。写好后，在 GitHub 确认提交，即可更新博客。</p></div><div class="writer-top-actions"><label class="subtle-button import-button"><Icon name="book" size={16}/> 导入文件<input id="import-file" type="file" accept=".md,.mdx" hidden/></label><button class="subtle-button" id="new-note"><Icon name="pen" size={16}/> 新建零散笔记</button><button class="subtle-button" id="new-book-note">新建读书笔记</button></div></header>
+  <div class="writer-draft-bar"><label>浏览器草稿<select id="draft-list" aria-label="选择浏览器草稿"><option>正在读取…</option></select></label><label>继续编辑已发布笔记<select id="published-list" aria-label="导入已发布笔记"><option value="">选择笔记…</option>{posts.map(p => <option value={p.id}>{p.data.title}</option>)}</select></label><span id="save-status" role="status">正在准备写作台…</span><button class="subtle-button danger-text" id="delete-draft">删除当前草稿</button></div>
+  <form id="writer-form" autocomplete="off">
+  <div class="writer-layout"><aside class="writer-metadata"><div class="panel-heading">笔记信息</div><div class="metadata-fields">
+    <label>笔记类型<select name="kind"><option value="note">零散笔记</option><option value="book">读书笔记</option></select></label>
+    <label>标题<input name="title" placeholder="想记录的问题或理解" required/></label>
+    <label>摘要<textarea name="description" rows="3" placeholder="一两句话，概括这篇笔记" required></textarea></label>
+    <label>文件名<input name="slug" placeholder="my-first-note" pattern="[a-z0-9]+(-[a-z0-9]+)*" required/><small>小写英文、数字和连字符</small></label>
+    <div class="metadata-pair"><label>日期<input name="date" type="date" required/></label><label>格式<select name="format"><option value="md">Markdown</option><option value="mdx">MDX</option></select></label></div>
+    <div id="book-fields" hidden><label>书籍<select name="bookChoice">{shelves.map(b => <option value={b.id}>{b.data.title}</option>)}<option value="new">＋ 添加一本新书</option></select></label><div id="new-book-fields"><label>书名<input name="bookTitle" placeholder="填写完整书名"/></label><label>书籍标识<input name="bookId" placeholder="clinical-trials-book"/><small>同一本书的笔记使用相同标识</small></label><label>原书作者<input name="bookAuthor" placeholder="可选"/></label><label>版本<input name="bookEdition" placeholder="可选，例如第 2 版"/></label><label>书籍简介<textarea name="bookDescription" rows="2" placeholder="可选"></textarea></label></div><label>章节顺序<input name="chapter" type="number" min="1" step="1"/><small>按这个数字安排章节和前后篇</small></label></div>
+    <label>主题<input name="category" list="category-options"/><datalist id="category-options"><option>试验设计</option><option>生存分析</option><option>统计推断</option><option>R / SAS 实践</option><option>读书笔记</option></datalist></label>
+    <label>标签<input name="tags" placeholder="样本量, R"/><small>用逗号分隔</small></label>
+    <details><summary>署名与列表插图</summary><label>署名<input name="author"/></label><label>插图<select name="visual"><option value="writing">文字札记</option><option value="estimand">研究问题</option><option value="survival">生存曲线</option><option value="power">效能曲线</option></select></label></details>
+  </div></aside>
+  <section class="writer-editor-panel"><div class="panel-heading"><span>Markdown 正文</span><span id="word-count">0 字</span></div><div class="editor-toolbar" role="group" aria-label="插入写作元素"><button type="button" data-insert="heading" title="插入标题">H₂</button><button type="button" data-insert="bold" title="加粗">B</button><button type="button" data-insert="inline-math" title="行内公式">$x$</button><button type="button" data-insert="block-math" title="独立公式">$$</button><button type="button" data-insert="link" title="超链接"><Icon name="up" size={16}/></button><label title="添加图片" class="toolbar-upload">图片<input type="file" id="image-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden/></label><button type="button" data-insert="code">代码</button><details class="chart-insert-menu"><summary>交互图表 ▾</summary><div><button type="button" data-chart-insert="survival">生存函数</button><button type="button" data-chart-insert="power">检验效能</button></div></details></div><textarea id="writer-body" aria-label="笔记正文" spellcheck="false" placeholder="从一个问题开始写…"></textarea><div class="editor-bottom"><span>⌘ / Ctrl + S 保存草稿</span><span id="asset-count">未添加本地图片</span></div></section>
+  <section class="writer-preview-panel"><div class="panel-heading"><span>阅读预览</span><button type="button" class="subtle-button" id="toggle-preview">展开预览</button></div><div class="writer-preview-scroll"><span class="preview-kind" id="preview-kind">零散笔记</span><h2 id="preview-title">未命名笔记</h2><p id="preview-description"></p><article class="prose" id="writer-preview"></article></div><p class="preview-footnote">MDX 预览支持本站的两类交互图表；其他组件会在正式构建时渲染。</p></section></div>
+  <div class="writer-bottom-bar"><span>草稿不会自动公开。建议定期导出备份。</span><div><button type="button" class="subtle-button" id="export-file"><Icon name="download" size={16}/> 导出草稿</button><button type="button" class="subtle-button" id="export-bundle">导出文章包</button><button type="button" class="button primary-button" id="prepare-publish">准备发布 <Icon name="arrow" size={16}/></button></div></div>
+  </form><div id="writer-message" role="status" hidden></div>
+  <noscript><p class="article-note">写作台需要启用 JavaScript。也可以直接使用仓库中的 templates/note.md 和 templates/book-note.md 模板写作。</p></noscript>
+</section>
+<dialog id="publish-dialog" class="writer-dialog"><div class="dialog-heading"><div><span class="eyebrow">READY TO PUBLISH</span><h2>发布这篇笔记</h2></div><button class="icon-button" id="close-publish" aria-label="关闭发布窗口"><Icon name="close"/></button></div><p id="publish-summary"></p><div id="publish-assets" class="publish-step" hidden><strong>先上传本地图片</strong><p>将文章包中的 public/images 文件上传到仓库对应目录。</p><a href="https://github.com/vam2016/statsnotes/upload/main/public/images" target="_blank" rel="noopener noreferrer">打开 GitHub 图片目录 ↗</a></div><div id="publish-book" class="publish-step" hidden><strong>先添加这本书</strong><p>这是新书，需要先把书籍信息加入仓库。复制下方内容，再打开书籍信息页，粘贴并提交。</p><textarea id="book-source" readonly aria-label="待发布书籍信息"></textarea><div class="publish-step-actions"><button class="subtle-button" id="copy-book">复制书籍信息</button><a class="subtle-button" id="book-edit-link" target="_blank" rel="noopener noreferrer">打开 GitHub 书籍信息页 ↗</a></div></div><div class="publish-step"><strong>复制笔记，在 GitHub 确认提交</strong><p>点击「复制完整笔记」，打开编辑页后，将文件内容全部替换为复制的内容，再选择 Commit changes 提交到 main。GitHub 会检查并自动发布。</p><div class="publish-step-actions"><button class="button primary-button" id="copy-publication">复制完整笔记</button><a class="button secondary-button" id="publication-link" target="_blank" rel="noopener noreferrer">打开 GitHub 编辑页 ↗</a></div><details><summary>查看待发布文件</summary><textarea id="publication-source" readonly aria-label="待发布笔记全文"></textarea></details></div><div class="publish-dialog-footer"><button class="subtle-button" id="download-publication">下载发布文章包</button><a href="https://github.com/vam2016/statsnotes/actions" target="_blank" rel="noopener noreferrer">查看发布进度 ↗</a></div><p class="publish-status" id="publish-status" aria-live="polite"></p></dialog>
+<dialog id="delete-dialog" class="writer-dialog small-dialog"><h2>删除当前浏览器草稿？</h2><p>如需保留内容，请先取消并导出备份。已发布的笔记不会受到影响。</p><div class="publish-step-actions"><button class="subtle-button" id="cancel-delete">取消</button><button class="subtle-button danger-text" id="confirm-delete">删除草稿</button></div></dialog>
+<script type="application/json" id="writer-data" set:html={JSON.stringify(initial).replace(/</g, '\\u003c')}/>
+<template id="preview-survival"><InteractiveChart kind="survival"/></template><template id="preview-power"><InteractiveChart kind="power"/></template>
+<script>import { initWriter } from '../lib/writer'; initWriter();</script>
+
+</Base>
